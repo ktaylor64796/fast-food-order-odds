@@ -91,17 +91,16 @@ strong{font-weight:700;color:#fff}
 
 /* ---------- findings ---------- */
 .findings{
-  counter-reset:f;list-style:none;margin:1.6rem 0 0;padding:0
+  list-style:none;margin:1.6rem 0 0;padding:0
 }
 .findings li{
-  position:relative;counter-increment:f;
-  padding:1rem 0 1rem 3.3rem;border-top:1px solid var(--line)
+  position:relative;
+  padding:1rem 0 1rem 1.9rem;border-top:1px solid var(--line)
 }
 .findings li:last-child{border-bottom:1px solid var(--line)}
 .findings li::before{
-  content:counter(f,decimal-leading-zero);position:absolute;left:0;top:.95rem;
-  font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--action);
-  letter-spacing:.04em
+  content:'';position:absolute;left:.15rem;top:1.5rem;
+  width:8px;height:8px;border-radius:50%;background:var(--action)
 }
 
 /* ---------- the odds board ---------- */
@@ -344,15 +343,15 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
   <p>We ran the numbers on 1,651 unannounced drive-thru visits across 10 major chains. Here are the fast food chains with the best (and worst) odds.</p>
 
   <h2>Fun Findings</h2>
-  <ol class="findings">
+  <ul class="findings">
     <li>11% of drive-thru orders come back wrong.</li>
     <li><strong>Taco Bell is the longest shot on the board</strong>, botching 15% of orders.</li>
     <li><strong>McDonald's and Chick-fil-A are co-favorites</strong>, both at just 7% chance of an order mishap.</li>
-    <li><strong>Speed and accuracy trade off against each other, hard.</strong> Across the 10 chains, there is a strong correlation between how long a visit takes and how often it goes wrong. Taco Bell is the fastest chain in the study and the least accurate. Chick-fil-A is the slowest and tied for the most accurate.</li>
+    <li><strong>Speed and accuracy trade off against each other, hard.</strong> Comparing chains, the slower the drive-thru, the more accurate it is. Taco Bell is the fastest chain in the study and the least accurate. Chick-fil-A is the slowest and tied for the most accurate.</li>
     <li>Among burger chains, <strong>McDonald's is the safest bet by a mile (7%)</strong> and <strong>Wendy's is the riskiest (13%)</strong>, nearly double the error rate.</li>
     <li><strong>The riskiest bet in fast food is asking for no ice.</strong> It was the single most-cited failure in the entire study, unfulfilled 27.7% of the time.</li>
-    <li>Accurate orders were handed over 50 seconds faster than inaccurate ones. If your car has been sitting at the window an unreasonably long time, start bracing.</li>
-  </ol>
+    <li><strong>A slow wait in your own line means the opposite.</strong> Within a single visit, accurate orders were handed over 50 seconds faster than inaccurate ones. Chains that budget more time per car make fewer mistakes, but a car stuck at the window is usually a mistake being fixed. If you have been sitting there an unreasonably long time, start bracing.</li>
+  </ul>
 
   <h2>The Odds Of A Wrong Order By Fast Food Chain</h2>
   <p>Ranked by the odds your order comes back wrong. The moneyline reads like a sportsbook: a bigger positive number means a correct order is the safer bet.</p>
@@ -472,5 +471,17 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
   
 
 </main>
+<script>
+(function(){
+  function send(){
+    parent.postMessage({ffoHeight: document.documentElement.scrollHeight}, '*');
+  }
+  window.addEventListener('load', send);
+  window.addEventListener('resize', send);
+  if (window.ResizeObserver) new ResizeObserver(send).observe(document.body);
+  setTimeout(send, 500);
+  setTimeout(send, 1500);
+})();
+</script>
 </body>
 </html>
