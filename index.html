@@ -1,0 +1,481 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Will they actually get your order right? We turned it into odds.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BRAND TOKENS
+   Swap these six values for the official Action Network hexes
+   and the whole page follows. Nothing else needs editing.
+   ============================================================ */
+:root{
+  --ink:        #0A1320;   /* page background, deep navy-black */
+  --surface:    #121F2E;   /* raised card / board face */
+  --surface-2:  #18293B;   /* row stripe, hover */
+  --line:       #23384E;   /* hairlines and borders */
+  --action:     #00D46A;   /* primary accent, the "action" green */
+  --action-ink: #04371F;   /* text on green */
+  --chalk:      #F2F7FB;   /* primary text */
+  --muted:      #8CA1B8;   /* secondary text */
+  --risk:       #FF5B3D;   /* longshot / danger */
+  --warn:       #FFB13D;   /* middling */
+
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --body: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'Roboto Mono', ui-monospace, monospace;
+
+  --wrap: 760px;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--chalk);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.65;
+  /* faint scanline texture, evokes a lit menu board */
+  background-image:repeating-linear-gradient(180deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px);
+}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 20px}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:var(--display);text-transform:uppercase;line-height:1.02;margin:0;letter-spacing:.01em}
+h1{font-size:clamp(2.3rem,7.2vw,4.1rem);font-weight:700}
+h2{font-size:clamp(1.5rem,4.2vw,2.15rem);font-weight:700;margin:3.2rem 0 .2rem}
+h3{font-size:1.15rem;font-weight:600;letter-spacing:.06em;margin:2rem 0 .4rem}
+p{margin:0 0 1.15rem}
+a{color:var(--action);text-decoration:none;border-bottom:1px solid rgba(0,212,106,.35)}
+a:hover{border-bottom-color:var(--action)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--action);outline-offset:3px;border-radius:2px}
+strong{font-weight:700;color:#fff}
+.eyebrow{
+  font-family:var(--display);text-transform:uppercase;letter-spacing:.18em;
+  font-size:.82rem;font-weight:600;color:var(--action);margin:0 0 .6rem
+}
+.deck{font-size:1.16rem;color:var(--muted);margin:.9rem 0 0;line-height:1.55}
+.byline{
+  font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);margin-top:1.4rem;padding-top:1.1rem;border-top:1px solid var(--line)
+}
+
+/* ---------- hero: a drive-thru menu board ---------- */
+.hero{
+  position:relative;padding:clamp(2.6rem,7vw,4.6rem) 0 clamp(2rem,5vw,3rem);
+  border-bottom:1px solid var(--line);overflow:hidden
+}
+.hero::before{ /* glow from the board */
+  content:'';position:absolute;top:-42%;left:50%;transform:translateX(-50%);
+  width:min(900px,130%);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,212,106,.14),transparent 62%);
+  pointer-events:none
+}
+.hero .wrap{position:relative}
+
+.speaker{
+  display:flex;align-items:center;gap:14px;
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:12px 16px;margin-bottom:1.9rem;max-width:400px
+}
+.grille{display:grid;grid-template-columns:repeat(4,4px);gap:4px;flex:none}
+.grille i{display:block;height:4px;border-radius:50%;background:var(--line)}
+.grille i:nth-child(3n){background:var(--action);opacity:.55}
+.speaker span{
+  font-family:var(--mono);font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)
+}
+.speaker b{color:var(--action);font-weight:500}
+
+/* ---------- findings ---------- */
+.findings{
+  counter-reset:f;list-style:none;margin:1.6rem 0 0;padding:0
+}
+.findings li{
+  position:relative;counter-increment:f;
+  padding:1rem 0 1rem 3.3rem;border-top:1px solid var(--line)
+}
+.findings li:last-child{border-bottom:1px solid var(--line)}
+.findings li::before{
+  content:counter(f,decimal-leading-zero);position:absolute;left:0;top:.95rem;
+  font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--action);
+  letter-spacing:.04em
+}
+
+/* ---------- the odds board ---------- */
+.board{
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;margin:1.6rem 0 1rem
+}
+.board-head{
+  display:grid;grid-template-columns:2.1fr 4.6rem 1fr 5.4rem;
+  gap:12px;align-items:center;padding:11px 18px;
+  background:var(--ink);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)
+}
+.board-head .r{text-align:right}
+.row{
+  display:grid;grid-template-columns:2.1fr 4.6rem 1fr 5.4rem;
+  gap:12px;align-items:center;padding:13px 18px;
+  border-bottom:1px solid rgba(35,56,78,.55);transition:background .15s
+}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--surface-2)}
+.row.total{background:var(--ink);border-top:1px solid var(--line);border-bottom:0}
+.row.total .name{color:var(--muted);font-style:italic}
+.chain{display:flex;align-items:center;gap:11px;min-width:0}
+.chain svg{width:30px;height:30px;flex:none}
+.name{font-family:var(--display);font-size:1.16rem;font-weight:600;letter-spacing:.015em;text-transform:uppercase;line-height:1.1}
+.pct{font-family:var(--mono);font-weight:700;font-size:1rem;text-align:right;font-variant-numeric:tabular-nums}
+.bar{height:7px;border-radius:4px;background:rgba(255,255,255,.06);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px}
+.ml{
+  font-family:var(--mono);font-weight:700;font-size:.94rem;text-align:right;
+  color:var(--action);font-variant-numeric:tabular-nums
+}
+.t-safe{color:var(--action)} .t-mid{color:var(--warn)} .t-risk{color:var(--risk)}
+.b-safe{background:var(--action)} .b-mid{background:var(--warn)} .b-risk{background:var(--risk)}
+
+.legend{
+  display:flex;flex-wrap:wrap;gap:8px 20px;
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  margin:0 0 2rem
+}
+.legend span{display:flex;align-items:center;gap:7px}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+
+/* ---------- tables ---------- */
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.5rem 0 1.6rem}
+table{width:100%;border-collapse:collapse;min-width:440px}
+caption{
+  text-align:left;font-family:var(--mono);font-size:.68rem;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted);padding-bottom:.7rem
+}
+th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line)}
+thead th{
+  font-family:var(--mono);font-size:.64rem;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;border-bottom-color:var(--action);white-space:nowrap
+}
+tbody th{
+  font-family:var(--display);font-size:1.05rem;font-weight:600;text-transform:uppercase;letter-spacing:.02em
+}
+td{font-family:var(--mono);font-size:.9rem;font-variant-numeric:tabular-nums}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+.food-cell{display:flex;align-items:center;gap:10px}
+.food-cell svg{width:26px;height:26px;flex:none}
+
+/* ---------- pull quote / read ---------- */
+.read{
+  border-left:3px solid var(--action);background:var(--surface);
+  padding:1.1rem 1.3rem;border-radius:0 10px 10px 0;margin:1.6rem 0
+}
+.read p{margin:0}
+.read .lab{
+  display:block;font-family:var(--mono);font-size:.66rem;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--action);margin-bottom:.4rem
+}
+
+/* ---------- ice callout ---------- */
+.ice{
+  display:flex;gap:18px;align-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:1.2rem 1.4rem;margin:1.6rem 0
+}
+.ice svg{width:62px;height:62px;flex:none}
+.ice .big{font-family:var(--display);font-size:2.5rem;font-weight:700;line-height:.95;color:var(--risk)}
+.ice .lab{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:.25rem}
+
+/* ---------- tells ---------- */
+.tells{list-style:none;margin:1.4rem 0 1.6rem;padding:0;display:grid;gap:10px}
+.tells li{
+  display:flex;align-items:baseline;gap:14px;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.85rem 1.1rem
+}
+.tells .up{
+  font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--action);flex:none;min-width:3.2rem
+}
+
+/* ---------- promo ---------- */
+.promo{
+  background:linear-gradient(135deg,var(--surface),var(--surface-2));
+  border:1px solid var(--line);border-left:3px solid var(--action);
+  border-radius:0 12px 12px 0;padding:1.3rem 1.4rem;margin:2rem 0
+}
+.promo p{margin:0}
+
+/* ---------- methodology ---------- */
+.method{
+  border-top:1px solid var(--line);margin-top:3.4rem;padding-top:1.8rem;
+  font-size:.94rem;color:var(--muted)
+}
+.method h2{color:var(--chalk)}
+.method strong{color:var(--chalk)}
+.disclaim{
+  font-family:var(--mono);font-size:.72rem;line-height:1.7;letter-spacing:.02em;
+  color:var(--line);border-top:1px solid var(--line);margin-top:1.6rem;padding:1.2rem 0 3.5rem
+}
+.disclaim b{color:var(--muted);font-weight:500}
+
+@media (max-width:620px){
+  body{font-size:16px}
+  .board-head,.row{grid-template-columns:1.7fr 3.6rem 4.8rem;gap:10px;padding:12px 14px}
+  .board-head .bar-h,.row .bar{display:none}
+  .chain svg{width:26px;height:26px}
+  .name{font-size:1.04rem}
+  .ice{flex-direction:column;align-items:flex-start;gap:12px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ FOOD ICON LIBRARY (generic illustrations, no brand marks) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-burger" viewBox="0 0 32 32">
+      <path d="M5 12.5C5 8.4 9.9 5.5 16 5.5S27 8.4 27 12.5H5Z" fill="#E3A055"/>
+      <circle cx="12" cy="9.4" r=".85" fill="#FFF3DC"/><circle cx="17" cy="8.3" r=".85" fill="#FFF3DC"/>
+      <circle cx="21" cy="10.2" r=".85" fill="#FFF3DC"/><circle cx="14.6" cy="11" r=".85" fill="#FFF3DC"/>
+      <path d="M4.4 13.4h23.2c.6 0 .9.8.4 1.2-1.6 1.3-3 .7-4.6 1.5-1.7.9-2.7 1-4.4.4-1.7-.6-2.9.5-4.6.5s-2.6-1-4.2-.5c-1.6.5-3 .5-4.4-1-.5-.5-.2-1.6.6-1.6Z" fill="#7DBE4E"/>
+      <rect x="4.6" y="16.6" width="22.8" height="4.6" rx="2.3" fill="#6B3A22"/>
+      <path d="M5.2 22.2h21.6c.5 0 .8.4.8.9 0 2.1-1.9 3.4-4.2 3.4H8.6c-2.3 0-4.2-1.3-4.2-3.4 0-.5.3-.9.8-.9Z" fill="#D9913F"/>
+    </symbol>
+
+    <symbol id="i-taco" viewBox="0 0 32 32">
+      <path d="M3.5 22.5C3.5 13.9 9.1 7 16 7s12.5 6.9 12.5 15.5H3.5Z" fill="#F0B84B"/>
+      <path d="M6.5 22.5C6.5 15.6 10.8 10 16 10s9.5 5.6 9.5 12.5h-19Z" fill="#F7CE72"/>
+      <path d="M4 19.6c2.4-1.1 3.6.9 6 0s3.6.9 6 0 3.6.9 6 0 3.4.7 5.6-.2c.3 1 .6 2 .7 3.1H3.5c.1-1 .3-2 .5-2.9Z" fill="#7DBE4E"/>
+      <path d="M8 22.5c.6-1.7 2.1-2.6 3.4-1.8 1.3.8 2.4-.6 3.9-.3 1.5.3 2.1 1.4 3.6 1 1.5-.4 2.6.3 3.3 1.1H8Z" fill="#C4452F"/>
+      <circle cx="11.5" cy="17.5" r="1.1" fill="#FFF7E8"/><circle cx="19.8" cy="16.6" r="1.1" fill="#FFF7E8"/>
+    </symbol>
+
+    <symbol id="i-donut" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="12" fill="#C98A52"/>
+      <path d="M28 16c0 6.6-5.4 12-12 12S4 22.6 4 16c0-2.6 2.2-1.4 3.4-3.3C8.8 10.5 8 7.6 10.6 6.4c2.3-1 3.4 1.6 5.9 1.3 2.6-.3 3.3-2.6 5.5-1.2 2.1 1.4 1 4 2.4 5.9 1.2 1.6 3.6.9 3.6 3.6Z" fill="#F06FA8"/>
+      <circle cx="16" cy="16" r="4.2" fill="#0A1320"/>
+      <g fill="#FFF3DC">
+        <rect x="10" y="9.4" width="3.4" height="1.5" rx=".75" transform="rotate(-24 11.7 10.1)"/>
+        <rect x="19.4" y="10.6" width="3.4" height="1.5" rx=".75" transform="rotate(30 21.1 11.3)"/>
+        <rect x="7.6" y="17.4" width="3.4" height="1.5" rx=".75" transform="rotate(64 9.3 18.1)"/>
+        <rect x="21.6" y="18.6" width="3.4" height="1.5" rx=".75" transform="rotate(-52 23.3 19.3)"/>
+        <rect x="14.2" y="23.4" width="3.4" height="1.5" rx=".75" transform="rotate(8 15.9 24.1)"/>
+      </g>
+    </symbol>
+
+    <symbol id="i-fries" viewBox="0 0 32 32">
+      <g fill="#F2C744" stroke="#D9A62E" stroke-width=".7">
+        <rect x="8.4" y="6.5" width="3.2" height="12" rx="1.4" transform="rotate(-9 10 12.5)"/>
+        <rect x="12.6" y="4.2" width="3.2" height="14" rx="1.4"/>
+        <rect x="16.8" y="5.4" width="3.2" height="13" rx="1.4" transform="rotate(7 18.4 12)"/>
+        <rect x="20.6" y="7.4" width="3.2" height="11" rx="1.4" transform="rotate(14 22.2 13)"/>
+      </g>
+      <path d="M7.6 15.6h16.8l-1.9 10.3c-.2 1.1-1.1 1.9-2.2 1.9H11.7c-1.1 0-2-.8-2.2-1.9L7.6 15.6Z" fill="#D9412F"/>
+      <path d="M9.3 19.4h13.4l-.3 1.9H9.6l-.3-1.9Z" fill="#F2F7FB" opacity=".85"/>
+    </symbol>
+
+    <symbol id="i-drumstick" viewBox="0 0 32 32">
+      <path d="M20.4 5.4c4 0 6.8 3 6.8 6.7 0 4.2-3.3 6.4-6 7.2-1.7.5-2.4 1-3.2 2.2l-1.7 2.5-5.4-5.1 2.1-2.1c1.1-1.1 1.4-1.9 1.7-3.5.6-3.5 2.3-7.9 5.7-7.9Z" fill="#C98A52"/>
+      <path d="M21 8.1c2.4 0 4 1.8 4 4 0 2.5-2 3.9-3.6 4.4-1 .3-1.5.6-1.9 1.3l-1 1.5-3.3-3.1 1.3-1.3c.7-.7.9-1.1 1-2.1.4-2.1 1.4-4.7 3.5-4.7Z" fill="#E0A468" opacity=".55"/>
+      <path d="m11.7 19.1 3.1 2.9-2.6 2.7a3.1 3.1 0 0 1-2.3 1 2.6 2.6 0 0 0-2.6 2.6c0 .5-.4.9-.9.9a3 3 0 0 1-3-3c0-.5.4-.9.9-.9a2.6 2.6 0 0 0 2.6-2.6c0-.9.4-1.7 1-2.3l2-1.9 1.8.6Z" fill="#F2E7D3"/>
+    </symbol>
+
+    <symbol id="i-tenders" viewBox="0 0 32 32">
+      <g transform="rotate(-14 11 16)">
+        <rect x="6.4" y="5.2" width="7.2" height="21.6" rx="3.6" fill="#E0A34E"/>
+        <rect x="8.3" y="8" width="3.4" height="15.6" rx="1.7" fill="#F4CE93" opacity=".55"/>
+      </g>
+      <g transform="rotate(14 21 16)">
+        <rect x="17.8" y="6.6" width="7.2" height="20.4" rx="3.6" fill="#EDB55F"/>
+        <rect x="19.7" y="9.3" width="3.4" height="14.8" rx="1.7" fill="#FBDCA6" opacity=".55"/>
+      </g>
+      <g fill="#C4832F" opacity=".45">
+        <circle cx="9.4" cy="10.6" r=".8"/><circle cx="11.6" cy="20.4" r=".65"/>
+        <circle cx="22.4" cy="13" r=".8"/><circle cx="20.4" cy="22.4" r=".65"/>
+      </g>
+    </symbol>
+
+    <symbol id="i-sandwich" viewBox="0 0 32 32">
+      <path d="M4.6 10.8 15.4 4.9a1.6 1.6 0 0 1 1.5 0l10.6 5.9c.9.5.9 1.8 0 2.3l-.9.5-12.2 6.6L4.6 13.1c-.9-.5-.9-1.8 0-2.3Z" fill="#DDA05A"/>
+      <path d="M5 14.6c2.2 1.5 3.6-.4 6 .9 2.3 1.3 3.4-.5 5.8.7 2.4 1.2 3.5-.5 6-.6.9 0 1.4 1 .8 1.6-1.4 1.3-2.9.6-4.5 1.4-1.7.8-2.9-.4-4.6.2-1.7.6-2.8-.7-4.4-.6-1.6.1-3-.4-4.9-1.9-.7-.6-.1-1.9.8-1.7Z" fill="#B33C2C"/>
+      <path d="M4.8 18.4c2.3 1.4 3.6-.5 6 .8 2.4 1.3 3.4-.5 5.8.7 2.4 1.2 3.6-.5 6-.6.9 0 1.4 1 .8 1.6-1.4 1.3-2.9.6-4.5 1.4-1.7.8-2.9-.4-4.6.2-1.7.6-2.8-.7-4.4-.6-1.6.1-3-.4-4.9-1.9-.7-.5-.1-1.8.8-1.6Z" fill="#8F2E22"/>
+      <path d="M4.4 22.4h23.2c.5 0 .8.4.8.9 0 2-1.8 3.3-4 3.3H7.6c-2.2 0-4-1.3-4-3.3 0-.5.3-.9.8-.9Z" fill="#D19450"/>
+    </symbol>
+
+    <symbol id="i-chicksand" viewBox="0 0 32 32">
+      <path d="M5.4 13.6C5.4 9.1 10.2 6 16 6s10.6 3.1 10.6 7.6H5.4Z" fill="#EFCF9C"/>
+      <circle cx="10.6" cy="19.8" r="2.6" fill="#5FA83E"/><circle cx="21.4" cy="19.8" r="2.6" fill="#5FA83E"/>
+      <path d="M4.2 16.4c.9-1.3 2.5-.5 3.6-1.3 1.2-.9 2.3.3 3.6-.4 1.3-.7 2.3.5 3.7.1 1.4-.4 2.2.8 3.6.5 1.4-.3 2.1-1.3 3.5-.9 1.4.4 2.2-.7 3.4.1 1.2.8 2.4 0 3.2 1.3.7 1.1-.2 2.5-1.6 3-1.4.5-2.2 1.6-3.7 1.8-1.5.2-2.4-.7-3.9-.6-1.5.1-2.3 1.1-3.8 1.1s-2.3-1-3.8-1.1c-1.5-.1-2.4.8-3.9.6-1.5-.2-2.4-1.3-3.7-1.9-1.3-.6-2-1.9-1.2-2.9Z" fill="#D98A2E"/>
+      <path d="M4.6 22.2h22.8c.5 0 .9.4.9.9 0 2.3-2 3.7-4.4 3.7H8.1c-2.4 0-4.4-1.4-4.4-3.7 0-.5.4-.9.9-.9Z" fill="#E7BC85"/>
+    </symbol>
+
+    <symbol id="i-cup" viewBox="0 0 32 32">
+      <path d="M19.8 4.2 22.4 8l-2.1 1.2-2.6-3.8 2.1-1.2Z" fill="#F2F7FB"/>
+      <path d="M8.4 9.8h15.2l-1.9 15.9c-.2 1.5-1.4 2.6-2.9 2.6h-5.6c-1.5 0-2.7-1.1-2.9-2.6L8.4 9.8Z" fill="#F2F7FB"/>
+      <path d="M9.1 15.4h13.8l-1.3 10.3c-.2 1.5-1.4 2.6-2.9 2.6h-5.4c-1.5 0-2.7-1.1-2.9-2.6L9.1 15.4Z" fill="#C4452F"/>
+      <rect x="6.9" y="7.5" width="18.2" height="3.1" rx="1.55" fill="#DDE6EF"/>
+      <path d="M11.6 18.6h8.8l-.3 2.2h-8.2l-.3-2.2Z" fill="#F2F7FB" opacity=".7"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============================ HERO ============================ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="speaker" aria-hidden="true">
+      <span class="grille"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span>Welcome to the window. <b>Go ahead with your order.</b></span>
+    </div>
+    <p class="eyebrow">Action Network Data Study</p>
+    <h1>Will they actually get your order right? We turned it into odds.</h1>
+    <p class="deck">We priced 1,651 drive-thru visits across 10 chains like a sportsbook would. Some windows are heavy favorites. One is a genuine longshot.</p>
+    <p class="byline">The Action Network &nbsp;/&nbsp; Data &amp; Betting Analysis</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <p>Every drive-thru order is a small wager. You say the words, you hand over the money, you pull away, and only a mile later, at a red light, do you find out whether the bag contains what you asked for or a burger wearing the exact condiment you declined.</p>
+
+  <p>So here at The Action Network, we did what we do best: we turned it into odds. Think of it as a sportsbook line for your lunch. Is your regular spot a heavy chalk favorite to nail the order, or are you laying money on a coin flip every time you say "no pickles"?</p>
+
+  <p>We ran the numbers on 1,651 unannounced drive-thru visits across 10 major chains. Here are the fast food chains with the best (and worst) odds.</p>
+
+  <h2>Fun Findings</h2>
+  <ol class="findings">
+    <li>11% of drive-thru orders come back wrong.</li>
+    <li><strong>Taco Bell is the longest shot on the board</strong>, botching 15% of orders.</li>
+    <li><strong>McDonald's and Chick-fil-A are co-favorites</strong>, both at just 7% chance of an order mishap.</li>
+    <li><strong>Speed and accuracy trade off against each other, hard.</strong> Across the 10 chains, there is a strong correlation between how long a visit takes and how often it goes wrong. Taco Bell is the fastest chain in the study and the least accurate. Chick-fil-A is the slowest and tied for the most accurate.</li>
+    <li>Among burger chains, <strong>McDonald's is the safest bet by a mile (7%)</strong> and <strong>Wendy's is the riskiest (13%)</strong>, nearly double the error rate.</li>
+    <li><strong>The riskiest bet in fast food is asking for no ice.</strong> It was the single most-cited failure in the entire study, unfulfilled 27.7% of the time.</li>
+    <li>Accurate orders were handed over 50 seconds faster than inaccurate ones. If your car has been sitting at the window an unreasonably long time, start bracing.</li>
+  </ol>
+
+  <h2>The Odds Of A Wrong Order By Fast Food Chain</h2>
+  <p>Ranked by the odds your order comes back wrong. The moneyline reads like a sportsbook: a bigger positive number means a correct order is the safer bet.</p>
+
+  <div class="board">
+    <div class="board-head">
+      <span>Chain</span><span class="r">Wrong</span><span class="bar-h">Risk</span><span class="r">Line</span>
+    </div>
+
+    <div class="row">
+      <span class="chain"><svg><use href="#i-taco"/></svg><span class="name">Taco Bell</span></span>
+      <span class="pct t-risk">15%</span>
+      <span class="bar"><i class="b-risk" style="width:100%"></i></span>
+      <span class="ml">+567</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-cup"/></svg><span class="name">Wendy's</span></span>
+      <span class="pct t-risk">13%</span>
+      <span class="bar"><i class="b-risk" style="width:87%"></i></span>
+      <span class="ml">+669</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-donut"/></svg><span class="name">Dunkin'</span></span>
+      <span class="pct t-risk">13%</span>
+      <span class="bar"><i class="b-risk" style="width:87%"></i></span>
+      <span class="ml">+669</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-burger"/></svg><span class="name">Burger King</span></span>
+      <span class="pct t-mid">12%</span>
+      <span class="bar"><i class="b-mid" style="width:80%"></i></span>
+      <span class="ml">+733</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-tenders"/></svg><span class="name">Raising Cane's</span></span>
+      <span class="pct t-mid">12%</span>
+      <span class="bar"><i class="b-mid" style="width:80%"></i></span>
+      <span class="ml">+733</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-sandwich"/></svg><span class="name">Arby's</span></span>
+      <span class="pct t-mid">11%</span>
+      <span class="bar"><i class="b-mid" style="width:73%"></i></span>
+      <span class="ml">+809</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-drumstick"/></svg><span class="name">KFC</span></span>
+      <span class="pct t-mid">11%</span>
+      <span class="bar"><i class="b-mid" style="width:73%"></i></span>
+      <span class="ml">+809</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-burger"/></svg><span class="name">Carl's Jr. / Hardee's</span></span>
+      <span class="pct t-safe">10%</span>
+      <span class="bar"><i class="b-safe" style="width:67%"></i></span>
+      <span class="ml">+900</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-fries"/></svg><span class="name">McDonald's</span></span>
+      <span class="pct t-safe">7%</span>
+      <span class="bar"><i class="b-safe" style="width:47%"></i></span>
+      <span class="ml">+1329</span>
+    </div>
+    <div class="row">
+      <span class="chain"><svg><use href="#i-chicksand"/></svg><span class="name">Chick-fil-A</span></span>
+      <span class="pct t-safe">7%</span>
+      <span class="bar"><i class="b-safe" style="width:47%"></i></span>
+      <span class="ml">+1329</span>
+    </div>
+    <div class="row total">
+      <span class="chain"><span class="name">Industry average</span></span>
+      <span class="pct">11%</span>
+      <span class="bar"><i style="width:73%;background:var(--muted)"></i></span>
+      <span class="ml" style="color:var(--muted)">+809</span>
+    </div>
+  </div>
+
+  <p class="legend">
+    <span><i class="dot b-safe"></i> Safe bet</span>
+    <span><i class="dot b-mid"></i> Coin-flip territory</span>
+    <span><i class="dot b-risk"></i> Longshot</span>
+  </p>
+
+  <h2>The Parlay</h2>
+  <p>One order is a single bet. A week of lunches is a parlay, and parlays are where the house lives.</p>
+
+  <div class="scroll">
+    <table>
+      <caption>Odds of N consecutive correct orders</caption>
+      <thead><tr><th>Chain</th><th>3 straight</th><th>5 straight</th><th>10 straight</th></tr></thead>
+      <tbody>
+        <tr><th>McDonald's / Chick-fil-A</th><td>80.4% <span style="color:var(--muted)">(-411)</span></td><td>69.6% <span style="color:var(--muted)">(-229)</span></td><td>48.4% <span class="t-safe">(+107)</span></td></tr>
+        <tr><th>Industry average</th><td>70.5% <span style="color:var(--muted)">(-239)</span></td><td>55.8% <span style="color:var(--muted)">(-126)</span></td><td>31.2% <span class="t-safe">(+221)</span></td></tr>
+        <tr><th>Taco Bell</th><td>61.4% <span style="color:var(--muted)">(-159)</span></td><td>44.4% <span class="t-safe">(+125)</span></td><td>19.7% <span class="t-safe">(+408)</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Five straight clean Taco Bell runs is genuinely plus-money at +125. Over a normal work week of lunches, you are more likely than not to eat something you didn't order.</p>
+
+  <p>Ten straight visits anywhere is close to a coin flip even at the best chain in America.</p>
+
+  <h2>How To Shorten Your Own Odds</h2>
+  <p>Three factors moved accuracy meaningfully, and two of them are just about whether the speaker box works.</p>
+
+  <ul class="tells">
+    <li><span class="up">+15%</span><span>accuracy when the speaker was clear and understandable</span></li>
+    <li><span class="up">+12%</span><span>accuracy when the speaker was loud enough to hear</span></li>
+    <li><span class="up">+7%</span><span>accuracy when the shopper didn't have to repeat the order</span></li>
+    <li><span class="up">+18%</span><span>accuracy when the shopper described the service as friendly</span></li>
+  </ul>
+
+  <p>Translation: if you can barely make out the voice in the box, you have already lost value on this bet. That's your cue to check the bag before you pull out, or to park and go inside. Same with a curt, rushed exchange. Friendliness turns out to be a leading indicator of competence, not a separate quality.</p>
+
+  <p>One more line worth watching. Only 4% of visits involved AI taking the order, just 58 shops, far too small to bet on. But in those visits accuracy hit 95%, against a study average of 89%. It's an early number on a market that hasn't really opened yet, and if it holds up as voice AI scales, the entire board above gets redrawn.</p>
+
+  
+
+</main>
+</body>
+</html>
