@@ -65,9 +65,10 @@ strong{font-weight:700;color:#fff}
 
 /* ---------- hero: a drive-thru menu board ---------- */
 .hero{
-  position:relative;padding:clamp(2.6rem,7vw,4.6rem) 0 clamp(2rem,5vw,3rem);
-  border-bottom:1px solid var(--line);overflow:hidden
+  position:relative;padding:clamp(2.6rem,7vw,4.6rem) 0 clamp(1.5rem,4vw,2.2rem);
+  overflow:hidden
 }
+main.wrap{padding-top:clamp(1.4rem,3.5vw,2rem)}
 .hero::before{ /* glow from the board */
   content:'';position:absolute;top:-42%;left:50%;transform:translateX(-50%);
   width:min(900px,130%);aspect-ratio:1;border-radius:50%;
@@ -335,12 +336,11 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
 </header>
 
 <main class="wrap">
-
   <p>Every drive-thru order is a small wager. You say the words, you hand over the money, you pull away, and only a mile later, at a red light, do you find out whether the bag contains what you asked for or a burger wearing the exact condiment you declined.</p>
 
   <p>So here at The Action Network, we did what we do best: we turned it into odds. Think of it as a sportsbook line for your lunch. Is your regular spot a heavy chalk favorite to nail the order, or are you laying money on a coin flip every time you say "no pickles"?</p>
 
-  <p>We ran the numbers on 1,651 unannounced drive-thru visits across 10 major chains. Here are the fast food chains with the best (and worst) odds.</p>
+  <p>We ran the numbers on 1,651 unannounced drive-thru visits across 10 major chains. Every figure below is an implied probability, the chance of an outcome expressed the way a sportsbook would price it, then converted into an American moneyline. Here are the fast food chains with the best (and worst) odds.</p>
 
   <h2>Fun Findings</h2>
   <ul class="findings">
@@ -471,17 +471,5 @@ tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
   
 
 </main>
-<script>
-(function(){
-  function send(){
-    parent.postMessage({ffoHeight: document.documentElement.scrollHeight}, '*');
-  }
-  window.addEventListener('load', send);
-  window.addEventListener('resize', send);
-  if (window.ResizeObserver) new ResizeObserver(send).observe(document.body);
-  setTimeout(send, 500);
-  setTimeout(send, 1500);
-})();
-</script>
 </body>
 </html>
